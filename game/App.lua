@@ -20,6 +20,7 @@ App = {
         START_SCENARIO = StartScenarioMenu.new(),
         START_BATTLE = StartBattleMenu.new(),
         APP_SETTINGS = AppSettingsMenu.new(),
+        CREDITS = CreditsMenu.new(),
     },
     current_mode = nil,
     current_menu = nil,
@@ -33,3 +34,7 @@ App.resources = {
     sounds = {},
     fonts = {},
 }
+
+-- Initialize the app to start with the intro menu
+App.current_mode = App.MODES.MENU
+App.current_menu = App.MENUS.INTRO
