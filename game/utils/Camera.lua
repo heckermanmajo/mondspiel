@@ -1,37 +1,37 @@
 --- @class Camera
---- Camera für die Spielwelt mit Zoom, Drag und WASD Bewegung
+--- Camera for the game world with zoom, drag and WASD movement
 ---
---- Die Camera verwaltet die Position und den Zoom-Level der Spielansicht.
+--- The Camera manages the position and zoom level of the game view.
 --- Features:
---- - WASD Bewegung (passt sich automatisch an Zoom-Level an)
+--- - WASD movement (automatically adapts to zoom level)
 --- - Middle Mouse Button Drag
 --- - Scroll-Wheel Zoom
---- - Zoom-adaptive Bewegungsgeschwindigkeit (mehr Bewegung bei weiter rausgezoomt, weniger bei rein gezoomt)
+--- - Zoom-adaptive movement speed (more movement when zoomed out, less when zoomed in)
 ---
---- @field x number Die X-Position der Camera in der Spielwelt
---- @field y number Die Y-Position der Camera in der Spielwelt
---- @field zoom number Der aktuelle Zoom-Level (1.0 = normal, >1 = näher, <1 = weiter weg)
---- @field move_speed number Die Basis-Bewegungsgeschwindigkeit (wird durch Zoom angepasst)
---- @field zoom_speed number Die Geschwindigkeit des Zoomens
---- @field min_zoom number Der minimale Zoom-Level
---- @field max_zoom number Der maximale Zoom-Level
---- @field dragging boolean Ob die Camera gerade gedragged wird
---- @field drag_start_x number Die X-Position des Mauszeigers beim Start des Drags
---- @field drag_start_y number Die Y-Position des Mauszeigers beim Start des Drags
---- @field drag_start_cam_x number Die X-Position der Camera beim Start des Drags
---- @field drag_start_cam_y number Die Y-Position der Camera beim Start des Drags
+--- @field x number The X-position of the camera in the game world
+--- @field y number The Y-position of the camera in the game world
+--- @field zoom number The current zoom level (1.0 = normal, >1 = closer, <1 = further away)
+--- @field move_speed number The base movement speed (adjusted by zoom)
+--- @field zoom_speed number The speed of zooming
+--- @field min_zoom number The minimum zoom level
+--- @field max_zoom number The maximum zoom level
+--- @field dragging boolean Whether the camera is currently being dragged
+--- @field drag_start_x number The X-position of the mouse pointer at the start of the drag
+--- @field drag_start_y number The Y-position of the mouse pointer at the start of the drag
+--- @field drag_start_cam_x number The X-position of the camera at the start of the drag
+--- @field drag_start_cam_y number The Y-position of the camera at the start of the drag
 Camera = {}
 Camera.__index = Camera
 
---- Erstellt eine neue Camera-Instanz
---- @param x number|nil Die initiale X-Position (default: 0)
---- @param y number|nil Die initiale Y-Position (default: 0)
---- @param zoom number|nil Der initiale Zoom-Level (default: 1.0)
---- @param move_speed number|nil Die Basis-Bewegungsgeschwindigkeit (default: 500)
---- @param zoom_speed number|nil Die Zoom-Geschwindigkeit (default: 0.1)
---- @param min_zoom number|nil Der minimale Zoom-Level (default: 0.1)
---- @param max_zoom number|nil Der maximale Zoom-Level (default: 5.0)
---- @return Camera Die neue Camera-Instanz
+--- Creates a new Camera instance
+--- @param x number|nil The initial X-position (default: 0)
+--- @param y number|nil The initial Y-position (default: 0)
+--- @param zoom number|nil The initial zoom level (default: 1.0)
+--- @param move_speed number|nil The base movement speed (default: 500)
+--- @param zoom_speed number|nil The zoom speed (default: 0.1)
+--- @param min_zoom number|nil The minimum zoom level (default: 0.1)
+--- @param max_zoom number|nil The maximum zoom level (default: 5.0)
+--- @return Camera The new Camera instance
 function Camera.new(x, y, zoom, move_speed, zoom_speed, min_zoom, max_zoom)
     T.optional_number(x, "Camera.new: x must be a number or nil")
     T.optional_number(y, "Camera.new: y must be a number or nil")
@@ -43,18 +43,18 @@ function Camera.new(x, y, zoom, move_speed, zoom_speed, min_zoom, max_zoom)
 
     local self = setmetatable({}, Camera)
 
-    -- Position und Zoom
+    -- Position and zoom
     self.x = x or 0
     self.y = y or 0
     self.zoom = zoom or 1.0
 
-    -- Bewegungs- und Zoom-Einstellungen
+    -- Movement and zoom settings
     self.move_speed = move_speed or 500
     self.zoom_speed = zoom_speed or 0.1
     self.min_zoom = min_zoom or 0.1
     self.max_zoom = max_zoom or 5.0
 
-    -- Drag-State
+    -- Drag state
     self.dragging = false
     self.drag_start_x = 0
     self.drag_start_y = 0
@@ -64,22 +64,22 @@ function Camera.new(x, y, zoom, move_speed, zoom_speed, min_zoom, max_zoom)
     return self
 end
 
---- Update-Methode für WASD Bewegung
---- Sollte in love.update(dt) aufgerufen werden
---- Die Bewegungsgeschwindigkeit passt sich automatisch an den Zoom-Level an:
---- Bei niedrigem Zoom (weiter weg) bewegt sich die Camera schneller
---- Bei hohem Zoom (näher dran) bewegt sich die Camera langsamer
---- @param dt number Delta-Zeit seit dem letzten Frame
+--- Update method for WASD movement
+--- Should be called in love.update(dt)
+--- The movement speed automatically adapts to the zoom level:
+--- At low zoom (further away) the camera moves faster
+--- At high zoom (closer) the camera moves slower
+--- @param dt number Delta time since the last frame
 function Camera:update(dt)
     T.number(dt, "Camera:update: dt must be a number")
 
-    -- Berechne die zoom-angepasste Bewegungsgeschwindigkeit
-    -- Je weiter wir rausgezoomt sind (zoom < 1), desto schneller bewegen wir uns
-    -- Je weiter wir reingezoomt sind (zoom > 1), desto langsamer bewegen wir uns
-    -- Dies sorgt dafür, dass sich die Bewegung für den Nutzer gleich anfühlt
+    -- Calculate the zoom-adjusted movement speed
+    -- The further we are zoomed out (zoom < 1), the faster we move
+    -- The further we are zoomed in (zoom > 1), the slower we move
+    -- This ensures that the movement feels the same for the user
     local adjusted_speed = self.move_speed * (1.0 / self.zoom) * dt
 
-    -- WASD Bewegung
+    -- WASD movement
     if love.keyboard.isDown("w") or love.keyboard.isDown("up") then
         self.y = self.y - adjusted_speed
     end
@@ -94,11 +94,11 @@ function Camera:update(dt)
     end
 end
 
---- Mousepressed-Handler für Middle Mouse Button Drag
---- Sollte in love.mousepressed(x, y, button) aufgerufen werden
---- @param x number Die X-Position des Mauszeigers
---- @param y number Die Y-Position des Mauszeigers
---- @param button number Die Maus-Button-Nummer (3 = Middle Mouse Button)
+--- Mousepressed handler for Middle Mouse Button drag
+--- Should be called in love.mousepressed(x, y, button)
+--- @param x number The X-position of the mouse pointer
+--- @param y number The Y-position of the mouse pointer
+--- @param button number The mouse button number (3 = Middle Mouse Button)
 function Camera:mousepressed(x, y, button)
     T.number(x, "Camera:mousepressed: x must be a number")
     T.number(y, "Camera:mousepressed: y must be a number")
@@ -114,11 +114,11 @@ function Camera:mousepressed(x, y, button)
     end
 end
 
---- Mousereleased-Handler für Middle Mouse Button Drag
---- Sollte in love.mousereleased(x, y, button) aufgerufen werden
---- @param x number Die X-Position des Mauszeigers
---- @param y number Die Y-Position des Mauszeigers
---- @param button number Die Maus-Button-Nummer (3 = Middle Mouse Button)
+--- Mousereleased handler for Middle Mouse Button drag
+--- Should be called in love.mousereleased(x, y, button)
+--- @param x number The X-position of the mouse pointer
+--- @param y number The Y-position of the mouse pointer
+--- @param button number The mouse button number (3 = Middle Mouse Button)
 function Camera:mousereleased(x, y, button)
     T.number(x, "Camera:mousereleased: x must be a number")
     T.number(y, "Camera:mousereleased: y must be a number")
@@ -130,12 +130,12 @@ function Camera:mousereleased(x, y, button)
     end
 end
 
---- Mousemoved-Handler für Middle Mouse Button Drag
---- Sollte in love.mousemoved(x, y, dx, dy) aufgerufen werden
---- @param x number Die aktuelle X-Position des Mauszeigers
---- @param y number Die aktuelle Y-Position des Mauszeigers
---- @param dx number Die Änderung in X-Richtung seit dem letzten Frame
---- @param dy number Die Änderung in Y-Richtung seit dem letzten Frame
+--- Mousemoved handler for Middle Mouse Button drag
+--- Should be called in love.mousemoved(x, y, dx, dy)
+--- @param x number The current X-position of the mouse pointer
+--- @param y number The current Y-position of the mouse pointer
+--- @param dx number The change in X direction since the last frame
+--- @param dy number The change in Y direction since the last frame
 function Camera:mousemoved(x, y, dx, dy)
     T.number(x, "Camera:mousemoved: x must be a number")
     T.number(y, "Camera:mousemoved: y must be a number")
@@ -143,30 +143,30 @@ function Camera:mousemoved(x, y, dx, dy)
     T.number(dy, "Camera:mousemoved: dy must be a number")
 
     if self.dragging then
-        -- Berechne die Differenz zwischen der aktuellen und der Start-Position
+        -- Calculate the difference between the current and start position
         local delta_x = x - self.drag_start_x
         local delta_y = y - self.drag_start_y
 
-        -- Bewege die Camera entsprechend (negativ, weil wir die Welt bewegen, nicht den Mauszeiger)
-        -- Die Bewegung wird auch durch den Zoom angepasst
+        -- Move the camera accordingly (negative, because we're moving the world, not the mouse pointer)
+        -- The movement is also adjusted by the zoom
         self.x = self.drag_start_cam_x - (delta_x / self.zoom)
         self.y = self.drag_start_cam_y - (delta_y / self.zoom)
     end
 end
 
---- Wheelmoved-Handler für Zoom
---- Sollte in love.wheelmoved(x, y) aufgerufen werden
---- @param x number Die horizontale Scroll-Richtung (wird nicht verwendet)
---- @param y number Die vertikale Scroll-Richtung (positiv = hoch, negativ = runter)
+--- Wheelmoved handler for zoom
+--- Should be called in love.wheelmoved(x, y)
+--- @param x number The horizontal scroll direction (not used)
+--- @param y number The vertical scroll direction (positive = up, negative = down)
 function Camera:wheelmoved(x, y)
     T.number(x, "Camera:wheelmoved: x must be a number")
     T.number(y, "Camera:wheelmoved: y must be a number")
 
-    -- Zoom in bei Scroll hoch, Zoom out bei Scroll runter
+    -- Zoom in on scroll up, zoom out on scroll down
     local zoom_delta = y * self.zoom_speed
     self.zoom = self.zoom + zoom_delta
 
-    -- Clamp zoom zwischen min_zoom und max_zoom
+    -- Clamp zoom between min_zoom and max_zoom
     if self.zoom < self.min_zoom then
         self.zoom = self.min_zoom
     elseif self.zoom > self.max_zoom then
@@ -174,13 +174,13 @@ function Camera:wheelmoved(x, y)
     end
 end
 
---- Wendet die Camera-Transformation auf die aktuelle Zeichenoperation an
---- Sollte vor dem Zeichnen der Spielwelt aufgerufen werden
---- Danach muss love.graphics.origin() oder love.graphics.pop() aufgerufen werden
+--- Applies the camera transformation to the current drawing operation
+--- Should be called before drawing the game world
+--- Afterwards love.graphics.origin() or love.graphics.pop() must be called
 function Camera:apply()
     love.graphics.push()
 
-    -- Zentriere die Camera auf dem Bildschirm
+    -- Center the camera on the screen
     local screen_center_x = love.graphics.getWidth() / 2
     local screen_center_y = love.graphics.getHeight() / 2
 
@@ -190,16 +190,16 @@ function Camera:apply()
     love.graphics.translate(-self.x, -self.y)
 end
 
---- Setzt die Camera-Transformation zurück
---- Sollte nach dem Zeichnen der Spielwelt aufgerufen werden
+--- Resets the camera transformation
+--- Should be called after drawing the game world
 function Camera:reset()
     love.graphics.pop()
 end
 
---- Konvertiert Bildschirm-Koordinaten in Welt-Koordinaten
---- @param screen_x number Die X-Position auf dem Bildschirm
---- @param screen_y number Die Y-Position auf dem Bildschirm
---- @return number, number Die X- und Y-Position in der Spielwelt
+--- Converts screen coordinates to world coordinates
+--- @param screen_x number The X-position on the screen
+--- @param screen_y number The Y-position on the screen
+--- @return number, number The X and Y position in the game world
 function Camera:screenToWorld(screen_x, screen_y)
     T.number(screen_x, "Camera:screenToWorld: screen_x must be a number")
     T.number(screen_y, "Camera:screenToWorld: screen_y must be a number")
@@ -213,10 +213,10 @@ function Camera:screenToWorld(screen_x, screen_y)
     return world_x, world_y
 end
 
---- Konvertiert Welt-Koordinaten in Bildschirm-Koordinaten
---- @param world_x number Die X-Position in der Spielwelt
---- @param world_y number Die Y-Position in der Spielwelt
---- @return number, number Die X- und Y-Position auf dem Bildschirm
+--- Converts world coordinates to screen coordinates
+--- @param world_x number The X-position in the game world
+--- @param world_y number The Y-position in the game world
+--- @return number, number The X and Y position on the screen
 function Camera:worldToScreen(world_x, world_y)
     T.number(world_x, "Camera:worldToScreen: world_x must be a number")
     T.number(world_y, "Camera:worldToScreen: world_y must be a number")
@@ -230,9 +230,9 @@ function Camera:worldToScreen(world_x, world_y)
     return screen_x, screen_y
 end
 
---- Setzt die Position der Camera
---- @param x number Die neue X-Position
---- @param y number Die neue Y-Position
+--- Sets the position of the camera
+--- @param x number The new X-position
+--- @param y number The new Y-position
 function Camera:setPosition(x, y)
     T.number(x, "Camera:setPosition: x must be a number")
     T.number(y, "Camera:setPosition: y must be a number")
@@ -241,14 +241,14 @@ function Camera:setPosition(x, y)
     self.y = y
 end
 
---- Setzt den Zoom-Level der Camera
---- @param zoom number Der neue Zoom-Level
+--- Sets the zoom level of the camera
+--- @param zoom number The new zoom level
 function Camera:setZoom(zoom)
     T.number(zoom, "Camera:setZoom: zoom must be a number")
 
     self.zoom = zoom
 
-    -- Clamp zoom zwischen min_zoom und max_zoom
+    -- Clamp zoom between min_zoom and max_zoom
     if self.zoom < self.min_zoom then
         self.zoom = self.min_zoom
     elseif self.zoom > self.max_zoom then
@@ -256,14 +256,14 @@ function Camera:setZoom(zoom)
     end
 end
 
---- Gibt die aktuelle Position der Camera zurück
---- @return number, number Die X- und Y-Position der Camera
+--- Returns the current position of the camera
+--- @return number, number The X and Y position of the camera
 function Camera:getPosition()
     return self.x, self.y
 end
 
---- Gibt den aktuellen Zoom-Level zurück
---- @return number Der Zoom-Level
+--- Returns the current zoom level
+--- @return number The zoom level
 function Camera:getZoom()
     return self.zoom
 end
