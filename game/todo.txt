@@ -1,0 +1,7 @@
+- Make all menus work
+- Document Formation Behaviour
+- Document Pathfinding Behaviour
+- Document Scenario Game Play
+    - Document setup
+- Document rts Game play
+- the function stubs need to be written by me
